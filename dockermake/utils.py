@@ -23,7 +23,10 @@ from termcolor import cprint, colored
 
 from . import errors
 
+from graphviz import Digraph
+
 _dockerclient = None
+
 
 
 def get_client_api():
@@ -147,6 +150,10 @@ def build_targets(args, defs, targets):
         else:
             builders.append(builder)
 
+    if args.print_dependencies:
+        _print_dependencies(defs, args.dependencies_dir)
+
+
     for b in builders:
         b.build(
             client, nobuild=args.no_build, usecache=not args.no_cache, pull=args.pull
@@ -167,6 +174,29 @@ def build_targets(args, defs, targets):
                 built[-1] += " -- pushed to %s" % b.targetname.split("/")[0]
 
     return built, warnings
+
+
+def format_name(str):
+    return str.replace(':', '')
+
+
+def _print_dependencies(defs, filename):
+    dot = Digraph(comment=filename, format="png")
+    ymldefs = defs.ymldefs
+
+    for i in ymldefs:
+        d = ymldefs[i]
+        if i in defs.all_targets:
+            dot.node(format_name(i), format_name(i), color="blue")
+
+        if "requires" in d:
+            for r in d["requires"]:
+                dot.edge(format_name(i), format_name(r))
+        if "FROM" in d:
+            dot.node(format_name(d["FROM"]), format_name(d["FROM"]), shape="box")
+            dot.edge(format_name(i), format_name(d["FROM"]))
+
+    dot.render(filename, view=True)
 
 
 def _make_buildargs(build_args):

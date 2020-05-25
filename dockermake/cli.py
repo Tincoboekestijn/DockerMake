@@ -82,6 +82,22 @@ def make_arg_parser():
         help="Directory to save dockerfiles in (default: ./docker_makefiles)",
     )
 
+    df = parser.add_argument_group("Graphviz")
+
+    df.add_argument(
+        "-pd",
+        "--print-dependencies",
+        "--print_dependencies",
+        action="store_true",
+        help="Print dependencies",
+    )
+
+    df.add_argument(
+        "--dependencies-dir",
+        default="docker_network.png",
+        help="Location to store the image of the dependency graph (default: ./docker_network.png). Currently only supports png",
+    )
+
     ca = parser.add_argument_group("Image caching")
     ca.add_argument(
         "--pull", action="store_true", help="Always try to pull updated FROM images"

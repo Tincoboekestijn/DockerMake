@@ -88,6 +88,12 @@ def test_ignore_directory(img6):
     _check_files("target_ignore_directory", d=False)
 
 
+def test_dependency_network(tmpdir):
+    tmpdir = str(tmpdir)
+    run_docker_make("-f data/dependencies.yml --all -n --print-dependencies --dependencies-dir %s/dependencies.png" % tmpdir)
+    assert os.path.isfile(os.path.join(tmpdir, "dependencies.png"))
+
+
 def test_dockerfile_write(tmpdir):
     tmpdir = str(tmpdir)
     run_docker_make("-f data/write.yml -p -n --dockerfile-dir %s writetarget" % tmpdir)
